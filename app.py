@@ -3,6 +3,15 @@ import jsonManager
 from datetime import datetime
 from tabulate import tabulate
 
+def searchByID(id: int):
+    data = jsonManager.read_json()
+    for t in data:
+        if t['id'] == id:
+            task = t
+        else:
+            task = None
+    return task
+
 def tasks(args):
     data = jsonManager.read_json()
     if len(data) < 1:
@@ -36,6 +45,22 @@ def addTask(args):
     except Exception as e:
         print(f"An error has ocurred: {e}")
 
+def delete(args):
+    if args is None:
+        print('You must write an ID')
+        return
+    try:
+        data = jsonManager.read_json()
+        task = searchByID(args.id)
+        if task is not None:
+            data.remove(task)
+            jsonManager.write_json(data)
+            print('Task deleted')
+        else:
+            print('Task not found')
+    except Exception as e:
+        print(f"An error has ocurred: {e}")
+
 def main():
     parser = argparse.ArgumentParser(description = "Task Tracker CLI Application")
     subparsers = parser.add_subparsers(dest="command", help="Available Commands")
@@ -46,6 +71,12 @@ def main():
 
     parser_tasks = subparsers.add_parser('tasks', help = "List all tasks")
     parser_tasks.set_defaults(func = tasks)
+
+    parser_delete = subparsers.add_parser('delete', help="Delete a task")
+    parser_delete.add_argument('id', type=int, help="Task ID")
+    parser_delete.set_defaults(func = delete)
+
+    
 
     args = parser.parse_args()
 

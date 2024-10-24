@@ -1,1 +1,1 @@
-[]
+[{"id": 1, "description": "English Homework", "status": "done", "createdAt": "24/10/2024 13:11:33", "updatedAt": "24/10/2024 13:23:43"}, {"id": 2, "description": "Walk the dog", "status": "in-progress", "createdAt": "24/10/2024 13:35:28", "updatedAt": "24/10/2024 13:35:57"}, {"id": 3, "description": "Buy Meat", "status": "todo", "createdAt": "24/10/2024 13:35:38", "updatedAt": ""}]

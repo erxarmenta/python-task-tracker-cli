@@ -5,6 +5,8 @@ from tabulate import tabulate
 
 def searchByID(id: int):
     data = jsonManager.read_json()
+    if len(data) < 1:
+        return
     for t in data:
         if t['id'] == id:
             task = t
@@ -77,6 +79,44 @@ def update(args):
         jsonManager.write_json(data)
         print(f'Task with ID {args.id} has been updated')
 
+def markInProgress(args):
+    data = jsonManager.read_json()
+    item = next((t for t in data if t['id'] == args.id), None)
+    if not item:
+        print(f'Task with ID {args.id} not found')
+    else:
+        item['status'] = "in-progress"
+        item['updatedAt'] = getDate()
+        jsonManager.write_json(data)
+        print(f'Task with ID {args.id} has been updated')
+
+def markDone(args):
+    data = jsonManager.read_json()
+    item = next((t for t in data if t['id'] == args.id), None)
+    if not item:
+        print(f'Task with ID {args.id} not found')
+    else:
+        item['status'] = "done"
+        item['updatedAt'] = getDate()
+        jsonManager.write_json(data)
+        print(f'Task with ID {args.id} has been updated')
+
+def listByStatus(args):
+    list_status = ['done', 'todo', 'in-progress']
+    if args.status not in list_status:
+        print('The argument entered is not valid')
+    data = jsonManager.read_json()
+    if len(data) < 1:
+        print('There are no pending tasks')
+        return
+    table_data = []
+    table_data.append(['ID', 'Description', 'Status', 'Created At', 'Updated At'])
+    for task in data:
+        if task['status'] == args.status:
+            aux = [task['id'], task['description'], task['status'], task['createdAt'], task['updatedAt']]
+            table_data.append(aux)
+    print(tabulate(table_data, headers="firstrow", tablefmt="fancy_grid"))
+
 def main():
     parser = argparse.ArgumentParser(description = "Task Tracker CLI Application")
     subparsers = parser.add_subparsers(dest="command", help="Available Commands")
@@ -96,6 +136,18 @@ def main():
     parser_update.add_argument('id', type=int, help="Task ID")
     parser_update.add_argument('--task', type=str, help="New task description")
     parser_update.set_defaults(func = update)
+
+    parser_markProcess = subparsers.add_parser('mark-in-progress', help="Mark in process a task")
+    parser_markProcess.add_argument('id', type=int, help="Task ID")
+    parser_markProcess.set_defaults(func = markInProgress)
+
+    parser_markDone = subparsers.add_parser('mark-done', help="Mark done a task")
+    parser_markDone.add_argument('id', type=int, help="Task ID")
+    parser_markDone.set_defaults(func = markDone)
+
+    parser_list = subparsers.add_parser('list', help="List tasks by status")
+    parser_list.add_argument('status', type=str, help="Status")
+    parser_list.set_defaults(func = listByStatus)
 
     args = parser.parse_args()
 

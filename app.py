@@ -12,6 +12,10 @@ def searchByID(id: int):
             task = None
     return task
 
+def getDate():
+    date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    return date
+
 def tasks(args):
     data = jsonManager.read_json()
     if len(data) < 1:
@@ -31,7 +35,7 @@ def addTask(args):
     try:
         data = jsonManager.read_json()
         newID = len(data) + 1
-        date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        date = getDate()
         newTask = {
             "id": newID,
             "description": args.description,
@@ -61,6 +65,18 @@ def delete(args):
     except Exception as e:
         print(f"An error has ocurred: {e}")
 
+def update(args):
+    data = jsonManager.read_json()
+    item = next((t for t in data if t['id'] == args.id), None)
+    if not item:
+        print(f'Task with ID {id} not found')
+    else:
+        if args.task is not None:
+            item['description'] = args.task
+            item['updatedAt'] = getDate()
+        jsonManager.write_json(data)
+        print(f'Task with ID {args.id} has been updated')
+
 def main():
     parser = argparse.ArgumentParser(description = "Task Tracker CLI Application")
     subparsers = parser.add_subparsers(dest="command", help="Available Commands")
@@ -76,7 +92,10 @@ def main():
     parser_delete.add_argument('id', type=int, help="Task ID")
     parser_delete.set_defaults(func = delete)
 
-    
+    parser_update = subparsers.add_parser('update', help="Update a task")
+    parser_update.add_argument('id', type=int, help="Task ID")
+    parser_update.add_argument('--task', type=str, help="New task description")
+    parser_update.set_defaults(func = update)
 
     args = parser.parse_args()
 
